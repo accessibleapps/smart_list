@@ -32,6 +32,8 @@ class SmartList(object):
   self.models = []
   self.list_items = []
   self.index_map = {}
+  self.columns = []
+
 
  def set_columns(self, columns):
   self.columns = columns
@@ -49,6 +51,8 @@ class SmartList(object):
 
  @freeze_and_thaw
  def add_items(self, items):
+  if self.index_map is None:
+   self._rebuild_index_map()
   for item in items:
    columns = self.get_columns_for(item)
    if self.use_dataview:
