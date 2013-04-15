@@ -17,9 +17,7 @@ class MyFrame(wx.Frame):
   self.lst = SmartList(self)
   self.lst.set_columns([ColumnDef("title", "title"),
 ColumnDef("description", "desc")])
-  for model in models:
-   self.lst.add(model)
-  self.lst.refresh()
+  self.lst.add_items(models)
   self.Show(True)
 
 app = wx.App()
