@@ -22,10 +22,10 @@ class VirtualCtrl(wx.ListCtrl):
 
 class SmartList(object):
 
- def __init__(self, parent=None, id=-1, *args, **kwargs):
+ def __init__(self, parent=None, id=-1):
   self.use_dataview = False
   if not self.use_dataview:
-   self.control = VirtualCtrl(self, parent, id, *args, **kwargs)
+   self.control = VirtualCtrl(self, parent, id, style=wx.LC_REPORT)
   else:
    self.control = dataview.DataViewListCtrl(parent, id, style=wx.LC_REPORT)
 
@@ -64,6 +64,9 @@ class SmartList(object):
    self._rebuild_index_map()
   return self.index_map.get(model, None)
 
+ def find_item_from_index(self):
+  return self.models[index]
+
  def _rebuild_index_map(self):
   self.index_map = {}
   for i, model in enumerate(self.models):
@@ -84,6 +87,28 @@ class SmartList(object):
    self.models.remove(item)
   self.index_map = None
 
+
+ def get_selected_items(self):
+  if self.use_dataview:
+   yield self.find_item_from_index(self.control.GetSelectedRow())
+  else:
+   yield self.find_item_from_index(self.control.GetFirstSelected())
+  for selection in xrange(1, self.control.GetSelectedItemCount()):
+   yield self.find_item_from_index(self.control.GetNextSelected(selection))
+
+ def get_selected_item(self):
+  try:
+   return self.get_selected_items().next()
+  except StopIteration:
+   return
+
+ def select_item(self, item):
+  index = self.find_index_of_item(item)
+  if self.use_dataview:
+   self.control.SelectRow(index)
+  else:
+   self.control.Select(index)
+
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
   if self.use_dataview:
@@ -101,42 +126,6 @@ class SmartList(object):
    self.control.SetStringItem(index, i, col)
 
 class VirtualSmartList(SmartList):
-
- def __init__(self, *args, **kwargs):
-  kwargs['style'] = kwargs.get('style', 0)|wx.LC_VIRTUAL
-  super(VirtualSmartList, self).__init__(*args, **kwargs)
-  self.list_items = []
-
- @freeze_and_thaw
- def add_items(self, items):
-  for item in items:
-   columns = self.get_columns_for(item)
-   self.list_items.append(columns)
-   self.models.append(item)
-   self.index_map[item] = len(self.models)
-  self.control.SetItemCount(len(self.models))
-
- def update_item(self, item):
-  index = self.find_index_of_item(item)
-  for i, col in enumerate(self.get_columns_for(item)):
-   self.list_items[index][i] = col
-  self.control.RefreshItem(index)
-
- def delete_items(self, items):
-  for item in items:
-   index = self.find_index_of_item(item)
-   self.models.remove(item)
-   del self.list_items[index]
-  self.index_map = None
-  self.control.SetItemCount(len(self.models))
-
- def insert_item(self, index, item):
-  columns = self.get_columns_for(item)
-  self.index_map = None
-  self.models.insert(index, item)
-  self.list_items.insert(index, columns)
-  self.control.SetItemCount(len(self.models))
-  self.control.RefreshItems(0, len(self.list_items)-1)
 
  def OnGetItemText(self, item, col):
   return self.list_items[item][col]
