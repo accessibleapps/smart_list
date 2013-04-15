@@ -22,13 +22,12 @@ class VirtualCtrl(wx.ListCtrl):
 
 class SmartList(object):
 
- def __init__(self, parent=None, id=-1):
+ def __init__(self, parent=None, id=-1, *args, **kwargs):
   self.use_dataview = False
   if not self.use_dataview:
-   self.control = VirtualCtrl(self, parent, id, style=wx.LC_REPORT)
+   self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
   else:
-   self.control = dataview.DataViewListCtrl(parent, id, style=wx.LC_REPORT)
-
+   self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
   #somewhere to store our model objects
   self.models = []
   self.list_items = []
