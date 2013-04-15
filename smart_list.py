@@ -1,6 +1,16 @@
 import wx
 from wx import dataview
 
+import functools
+
+def freeze_and_thaw(func):
+ @functools.wraps(func)
+ def closure(self, *args, **kwargs):
+  self.control.Freeze()
+  func(self, *args, **kwargs)
+  self.control.Thaw()
+ return closure
+
 class VirtualCtrl(wx.ListCtrl):
 
  def __init__(self, parent_obj, *args, **kwargs):
@@ -38,6 +48,7 @@ class SmartList(object):
    cols.append(c.get_model_value(model))
   return cols
 
+ @freeze_and_thaw
  def add_items(self, items):
   for item in items:
    columns = self.get_columns_for(item)
@@ -66,6 +77,7 @@ class SmartList(object):
  def delete_item(self, item):
   self.delete_items((item,))
 
+ @freeze_and_thaw
  def delete_items(self, items):
   for item in items:
    self.control.DeleteItem(self.index_map[item])
