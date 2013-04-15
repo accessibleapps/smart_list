@@ -177,12 +177,12 @@ class VirtualSmartList(SmartList):
 
 class Column(object):
 
- def __init__(self, title, value_getter):
+ def __init__(self, title, model_field):
   self.title = title
-  self.value_getter = value_getter
+  self.model_field = model_field
 
  def get_model_value(self, model):
-  value = getattr(model, self.value_getter)
+  value = getattr(model, self.model_field)
   if callable(value):
    return value()
   return value
