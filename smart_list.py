@@ -54,7 +54,7 @@ class VirtualSmartList(SmartList):
  def OnGetItemText(self, item, col):
   return self.list_items[item][col]
 
-class ColumnDef(object):
+class Column(object):
 
  def __init__(self, title, value_getter):
   self.title = title
