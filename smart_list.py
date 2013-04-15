@@ -71,6 +71,9 @@ class SmartList(object):
   for i, model in enumerate(self.models):
    self.index_map[model] = i
 
+ def clear(self):
+  self.control.DeleteAllItems()
+
  def add_item(self, item):
   self.add_items((item,))
 
