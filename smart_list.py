@@ -35,7 +35,7 @@ class SmartList(object):
  def get_columns_for(self, model):
   cols = []
   for c in self.columns:
-   cols.append(getattr(model, c.value_getter))
+   cols.append(c.get_model_value(model))
   return cols
 
  def refresh(self):
@@ -55,3 +55,9 @@ class ColumnDef(object):
  def __init__(self, title, value_getter):
   self.title = title
   self.value_getter = value_getter
+
+ def get_model_value(self, model):
+  value = getattr(model, self.value_getter)
+  if callable(value):
+   return value()
+  return value
