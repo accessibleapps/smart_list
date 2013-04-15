@@ -1,6 +1,6 @@
 import wx
 import wx.stc
-from smart_list import SmartList, Column
+from smart_list import SmartList, Column, VirtualSmartList
 
 class SampleModel(object):
  def __init__(self, title, desc):
@@ -15,7 +15,7 @@ class MyFrame(wx.Frame):
  def __init__(self, parent, title):
   super(MyFrame, self).__init__(parent, title=title, size=(500, 500))
   panel = wx.Panel(self, size=(500, 500))
-  self.lst = SmartList(panel)
+  self.lst = VirtualSmartList(panel, style=wx.LC_REPORT)
   self.lst.set_columns([Column("title", "title"),
 Column("description", "desc")])
   self.lst.add_items(models)
