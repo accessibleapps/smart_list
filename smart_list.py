@@ -23,11 +23,11 @@ class SmartList(object):
 
  def set_columns(self, columns):
   self.columns = columns
-  for i, c in enumerate(columns):
+  for index, column in enumerate(columns):
    if self.use_dataview:
-    self.control.AppendTextColumn(c.title)
+    self.control.AppendTextColumn(column.title)
    else:
-    self.control.InsertColumn(i, c.title)
+    self.control.InsertColumn(index, column.title)
 
  def add(self, model):
   self.models.append(model)
