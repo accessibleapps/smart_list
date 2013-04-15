@@ -73,6 +73,8 @@ class SmartList(object):
 
  def clear(self):
   self.control.DeleteAllItems()
+  self.index_map = None
+  del self.models[:]
 
  def add_item(self, item):
   self.add_items((item,))
