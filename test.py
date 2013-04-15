@@ -27,6 +27,7 @@ Column("description", "desc")])
   self.lst.insert_item(3, SampleModel('something', 'something else'))
   models[5].desc = 'x'
   self.lst.update_item(models[5])
+  self.lst.delete_item(models[-1])
 
 app = wx.App()
 frame = MyFrame(None, "Smart List Test")

@@ -63,10 +63,14 @@ class SmartList(object):
 
  append = add_item
 
- def delete_item(self, index):
-  self.control.DeleteItem(index)
+ def delete_item(self, item):
+  self.delete_items((item,))
 
- __delitem__ = delete_item
+ def delete_items(self, items):
+  for item in items:
+   self.control.DeleteItem(self.index_map[item])
+   self.models.remove(item)
+  self.index_map = None
 
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
