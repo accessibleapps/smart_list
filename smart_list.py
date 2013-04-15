@@ -22,6 +22,7 @@ class SmartList(object):
   #somewhere to store our model objects
   self.models = []
   self.list_items = []
+  self.index_map = {}
 
  def set_columns(self, columns):
   self.columns = columns
@@ -45,9 +46,36 @@ class SmartList(object):
    else:
     self.control.Append(columns)
    self.models.append(item)
+   self.index_map[item] = len(self.models)
+
+ def find_index_of_item(self, model):
+  try:
+   return self.index_map[model]
+  except KeyError:
+   return None
 
  def add_item(self, item):
   self.add_items((item,))
+
+ append = add_item
+
+ def delete_item(self, index):
+  self.control.DeleteItem(index)
+
+ __delitem__ = delete_item
+
+ def insert_item(self, index, item):
+  columns = self.get_columns_for(item)
+  if self.use_dataview:
+   self.control.InsertItem(index, columns)
+  else:
+   #how do we do this?
+   pass
+
+ def update_item(self, item):
+  index = self.find_index_of_item(item)
+  self.delete_item(index)
+  self.insert_item(index, item)
 
 class VirtualSmartList(SmartList):
 
