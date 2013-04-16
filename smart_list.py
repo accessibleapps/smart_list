@@ -175,6 +175,15 @@ class VirtualSmartList(SmartList):
  def OnGetItemText(self, item, col):
   return self.list_items[item][col]
 
+ def update_models(self, models):
+  if self.index_map is None:
+   self._rebuild_index_map()
+  for model in models:
+   if model in self.index_map:
+    self.update_item(model)
+   else:
+    self.add_item(model)
+
 class Column(object):
 
  def __init__(self, title, model_field, width):
