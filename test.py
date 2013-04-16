@@ -16,8 +16,8 @@ class MyFrame(wx.Frame):
   super(MyFrame, self).__init__(parent, title=title, size=(500, 500))
   panel = wx.Panel(self, size=(500, 500))
   self.lst = VirtualSmartList(parent=panel, style=wx.LC_REPORT)
-  self.lst.set_columns([Column("title", "title"),
-Column("description", "desc")])
+  self.lst.set_columns([Column("title", "title", 100),
+Column("description", "desc", 200)])
   self.lst.add_items(models)
   self.button = wx.Button(parent=panel, label="test")
   self.button.Bind(wx.EVT_BUTTON, self.click)
