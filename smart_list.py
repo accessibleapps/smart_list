@@ -41,7 +41,7 @@ class SmartList(object):
    if self.use_dataview:
     self.control.AppendTextColumn(column.title)
    else:
-    self.control.InsertColumn(index, column.title, width=column.width)
+    self.control.InsertColumn(index, unicode(column.title), width=column.width)
 
  def get_columns_for(self, model):
   cols = []
