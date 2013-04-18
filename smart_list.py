@@ -194,6 +194,8 @@ class Column(object):
   self.width = width
 
  def get_model_value(self, model):
+  if self.model_field is None:
+   return
   value = getattr(model, self.model_field)
   if callable(value):
    return value()
