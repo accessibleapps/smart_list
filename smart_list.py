@@ -39,7 +39,7 @@ class SmartList(object):
   self.columns = columns
   for index, column in enumerate(columns):
    if self.use_dataview:
-    self.control.AppendTextColumn(column.title)
+    self.control.AppendTextColumn(column.title, width=column.width)
    else:
     self.control.InsertColumn(index, unicode(column.title), width=column.width)
 
@@ -188,7 +188,7 @@ class VirtualSmartList(SmartList):
 
 class Column(object):
 
- def __init__(self, title, model_field, width):
+ def __init__(self, title=None, width=-1, model_field=None):
   self.title = title
   self.model_field = model_field
   self.width = width
