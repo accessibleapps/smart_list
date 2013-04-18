@@ -112,12 +112,24 @@ class SmartList(object):
   except StopIteration:
    return
 
+ def get_selected_index(self):
+  if self.use_dataview:
+   return self.control.GetSelectedRow()
+  else:
+   return self.control.GetFirstSelected()
+
  def select_item(self, item):
   index = self.find_index_of_item(item)
   if self.use_dataview:
    self.control.SelectRow(index)
   else:
    self.control.Select(index)
+
+ def set_selected_index(self, index):
+  if self.use_dataview:
+   return self.control.SelectRow(index)
+  else:
+   return self.control.Select(index)
 
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
