@@ -12,13 +12,16 @@ for i in range(10):
  models.append(SampleModel(str(i), "desc for %d" % i))
 
 class MyFrame(wx.Frame):
+ def get_item(self, row, col):
+  return models[row]
+
  def __init__(self, parent, title):
   super(MyFrame, self).__init__(parent, title=title, size=(500, 500))
   panel = wx.Panel(self, size=(500, 500))
-  self.lst = SmartList(parent=panel, style=wx.LC_REPORT)
+  self.lst = VirtualSmartList(parent=panel, style=wx.LC_REPORT, get_item=self.get_item)
   self.lst.set_columns([Column(title="title", model_field="title", width=100),
 Column(title="description", model_field="desc", width=200)])
-  self.lst.add_items(models)
+  self.lst.update_count(len(models))
   self.button = wx.Button(parent=panel, label="test")
   self.button.Bind(wx.EVT_BUTTON, self.click)
   self.Show(True)
