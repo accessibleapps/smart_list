@@ -170,7 +170,7 @@ class VirtualSmartList(SmartList):
   self.update_cache = update_cache
 
  def OnGetItemText(self, item, col):
-  if self.update_cache is not None and self.caching_from <= item and self.caching_to >= item:
+  if self.update_cache is not None and self.cache and self.caching_from <= item and self.caching_to >= item:
    wanted = item-self.caching_from
    #print "from %d to %d wanted %d len %d" % (self.caching_from, self.caching_to, wanted, len(self.cache))
    model = self.cache[wanted]
