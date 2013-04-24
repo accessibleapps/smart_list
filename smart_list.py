@@ -159,44 +159,17 @@ class SmartList(object):
 class VirtualSmartList(SmartList):
 
 
- def __init__(self, *args, **kwargs):
+ def __init__(self, get_item=None, *args, **kwargs):
   kwargs['style'] = kwargs.get('style', 0)|wx.LC_VIRTUAL
   super(VirtualSmartList, self).__init__(*args, **kwargs)
-  self.list_items = []
-
- @freeze_and_thaw
- def add_items(self, items):
-  for item in items:
-   columns = self.get_columns_for(item)
-   self.list_items.append(columns)
-   self.models.append(item)
-   self.index_map[item] = len(self.models)-1
-  self.control.SetItemCount(len(self.models))
-
- def update_item(self, item):
-  index = self.find_index_of_item(item)
-  for i, col in enumerate(self.get_columns_for(item)):
-   self.list_items[index][i] = col
-  self.control.RefreshItem(index)
-
- def delete_items(self, items):
-  for item in items:
-   index = self.find_index_of_item(item)
-   self.models.remove(item)
-   del self.list_items[index]
-  self.index_map = None
-  self.control.SetItemCount(len(self.models))
-
- def insert_item(self, index, item):
-  columns = self.get_columns_for(item)
-  self.index_map = None
-  self.models.insert(index, item)
-  self.list_items.insert(index, columns)
-  self.control.SetItemCount(len(self.models))
-  self.control.RefreshItems(0, len(self.list_items)-1)
+  self.get_item = get_item
 
  def OnGetItemText(self, item, col):
-  return self.list_items[item][col]
+  model = self.get_item(item, col)
+  return self.columns[col].get_model_value(model)
+
+ def update_count(self, count):
+  self.control.SetItemCount(count)
 
 class Column(object):
 
