@@ -159,17 +159,38 @@ class SmartList(object):
 class VirtualSmartList(SmartList):
 
 
- def __init__(self, get_item=None, *args, **kwargs):
+ def __init__(self, get_item=None, update_cache=None, *args, **kwargs):
   kwargs['style'] = kwargs.get('style', 0)|wx.LC_VIRTUAL
   super(VirtualSmartList, self).__init__(*args, **kwargs)
   self.get_item = get_item
+  if update_cache is not None:
+   self.control.Bind(wx.EVT_LIST_CACHE_HINT, self.handle_cache)
+  self.caching_from = 0
+  self.caching_to = 0
+  self.update_cache = update_cache
 
  def OnGetItemText(self, item, col):
-  model = self.get_item(item, col)
+  if self.update_cache is not None and self.caching_from <= item and self.caching_to >= item:
+   wanted = item-self.caching_from
+   #print "from %d to %d wanted %d len %d" % (self.caching_from, self.caching_to, wanted, len(self.cache))
+   model = self.cache[wanted]
+  else:
+   model = self.get_item(item, col)
   return self.columns[col].get_model_value(model)
 
  def update_count(self, count):
   self.control.SetItemCount(count)
+
+ def handle_cache(self, event):
+  from_row = event.GetCacheFrom()
+  to_row = event.GetCacheTo()
+  if self.caching_from <= from_row and self.caching_to >= to_row:
+   return
+
+  self.caching_from = from_row
+  self.caching_to = to_row
+  self.cache = self.update_cache(from_row, to_row)
+
 
 class Column(object):
 
