@@ -60,7 +60,7 @@ class SmartList(object):
    else:
     self.control.Append(columns)
    self.models.append(item)
-   self.index_map[item] = len(self.models)
+   self.index_map[item] = len(self.models)-1
 
  def find_index_of_item(self, model):
   if self.index_map is None:
@@ -170,7 +170,7 @@ class VirtualSmartList(SmartList):
    columns = self.get_columns_for(item)
    self.list_items.append(columns)
    self.models.append(item)
-   self.index_map[item] = len(self.models)
+   self.index_map[item] = len(self.models)-1
   self.control.SetItemCount(len(self.models))
 
  def update_item(self, item):
