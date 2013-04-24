@@ -191,6 +191,11 @@ class VirtualSmartList(SmartList):
   self.caching_to = to_row
   self.cache = self.update_cache(from_row, to_row)
 
+ def refresh(self):
+  self.control.RefreshItems(0, self.control.GetItemCount()-1)
+  self.cache = []
+  self.caching_from = 0
+  self.caching_to = 0
 
 class Column(object):
 
