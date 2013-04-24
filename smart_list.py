@@ -209,8 +209,8 @@ class Column(object):
   if self.model_field is None:
    return
   if callable(self.model_field):
-   return self.model_field(model)
+   return unicode(self.model_field(model))
   value = getattr(model, self.model_field)
   if callable(value):
-   return value()
-  return value
+   value = value()
+  return unicode(value)
