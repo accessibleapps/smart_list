@@ -124,6 +124,7 @@ class SmartList(object):
    self.control.SelectRow(index)
   else:
    self.control.Select(index)
+   self.control.Focus(index)
 
  def set_selected_index(self, index):
   if self.use_dataview:
