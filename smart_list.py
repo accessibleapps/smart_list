@@ -118,7 +118,7 @@ class SmartList(object):
   else:
    return self.control.GetFirstSelected()
 
- def select_item(self, item):
+ def select_model(self, item):
   index = self.find_index_of_item(item)
   if self.use_dataview:
    self.control.SelectRow(index)
