@@ -205,6 +205,12 @@ class VirtualSmartList(SmartList):
   self.caching_from = 0
   self.caching_to = 0
 
+ def find_index_of_item(self, item):
+  for i in xrange(self.control.GetItemCount()):
+   model = self.get_virtual_item(i)
+   if model == item:
+    return i
+
 class Column(object):
 
  def __init__(self, title=None, width=-1, model_field=None):
