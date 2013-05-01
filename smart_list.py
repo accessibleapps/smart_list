@@ -162,10 +162,10 @@ class SmartList(object):
 class VirtualSmartList(SmartList):
 
 
- def __init__(self, get_item=None, update_cache=None, *args, **kwargs):
+ def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
   kwargs['style'] = kwargs.get('style', 0)|wx.LC_VIRTUAL
   super(VirtualSmartList, self).__init__(*args, **kwargs)
-  self.get_item = get_item
+  self.get_virtual_item = get_virtual_item
   if update_cache is not None:
    self.control.Bind(wx.EVT_LIST_CACHE_HINT, self.handle_cache)
   self.caching_from = 0
@@ -178,7 +178,7 @@ class VirtualSmartList(SmartList):
    #print "from %d to %d wanted %d len %d" % (self.caching_from, self.caching_to, wanted, len(self.cache))
    model = self.cache[wanted]
   else:
-   model = self.get_item(item, col)
+   model = self.get_virtual_item(item)
   return self.columns[col].get_model_value(model)
 
  def update_count(self, count):
