@@ -23,6 +23,7 @@ class VirtualCtrl(wx.ListCtrl):
 class SmartList(object):
 
  def __init__(self, parent=None, id=-1, *args, **kwargs):
+  choices = kwargs.pop('choices', [])
   self.use_dataview = False
   if not self.use_dataview:
    self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
@@ -33,6 +34,7 @@ class SmartList(object):
   self.list_items = []
   self.index_map = {}
   self.columns = []
+  self.add_items(choices)
 
 
  def set_columns(self, columns):
