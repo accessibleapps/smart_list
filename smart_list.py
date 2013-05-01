@@ -176,6 +176,7 @@ class VirtualSmartList(SmartList):
   self.caching_from = 0
   self.caching_to = 0
   self.update_cache = update_cache
+  self.cache = []
 
  def OnGetItemText(self, item, col):
   if self.update_cache is not None and self.cache and self.caching_from <= item and self.caching_to >= item:
