@@ -82,6 +82,8 @@ class SmartList(object):
  def _rebuild_index_map(self):
   self.index_map = {}
   for i, model in enumerate(self.models):
+   if isinstance(model, dict):
+    model = frozendict(model)
    self.index_map[model] = i
 
  def clear(self):
