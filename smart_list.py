@@ -27,6 +27,7 @@ class SmartList(object):
   choices = kwargs.pop('choices', [])
   self.use_dataview = False
   if not self.use_dataview:
+   kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
    self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
   else:
    self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
