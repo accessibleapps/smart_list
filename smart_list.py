@@ -1,5 +1,6 @@
 import wx
 from wx import dataview
+from frozendict import frozendict
 
 import functools
 
@@ -62,11 +63,15 @@ class SmartList(object):
    else:
     self.control.Append(columns)
    self.models.append(item)
+   if isinstance(item, dict):
+    item = frozendict(item)
    self.index_map[item] = len(self.models)-1
 
  def find_index_of_item(self, model):
   if self.index_map is None:
    self._rebuild_index_map()
+  if isinstance(model, dict):
+   model = frozendict(model)
   return self.index_map.get(model, None)
 
  def find_item_from_index(self, index):

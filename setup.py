@@ -9,7 +9,8 @@ setup(
  description = __doc__,
  py_modules = ["smart_list"],
  install_requires = [
-  'wx',
+  'frozendict',
+  'wxpython',
  ],
  classifiers = [
   'Development Status :: 3 - Alpha',
