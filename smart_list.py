@@ -222,7 +222,10 @@ class Column(object):
    return
   if callable(self.model_field):
    return unicode(self.model_field(model))
-  value = getattr(model, self.model_field)
+  try:
+   value = getattr(model, self.model_field)
+  except AttributeError:
+   value = model[self.model_field]
   if callable(value):
    value = value()
   return unicode(value)
