@@ -12,6 +12,90 @@ def freeze_and_thaw(func):
   self.control.Thaw()
  return closure
 
+class ListWrapper(object):
+ """Provides a standard abstraction over a ListView and DataView"""
+
+ def __init__(self, parent=None, id=None, *args, **kwargs):
+  self.use_dataview = False
+  if not self.use_dataview:
+   kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
+   self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
+  else:
+   self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
+
+ def Append(self, item):
+  if self.use_dataview:
+   self.control.AppendItem(item)
+  else:
+   self.control.Append(item)
+
+ def Insert(self, index, item):
+  if self.use_dataview:
+   self.control.InsertItem(index, columns)
+  else:
+   self.control.InsertStringItem(index, columns[0])
+   for i, col in enumerate(columns[1:]):
+    self.SetColumnText(index, i+1, col)
+
+ def SetColumnText(self, index, column, text):
+  self.control.SetStringItem(index, column, text)
+
+ def Freeze(self):
+  self.control.Freeze()
+
+ def Thaw(self):
+  self.control.Thaw()
+
+ def Select(self, index, select=True):
+  self.control.Select(index, select)
+
+
+ def Bind(self, *args, **kwargs):
+  return self.control.Bind(*args, **kwargs)
+
+ def SetLabel(self, *args, **kwargs):
+  return self.control.SetLabel(*args, **kwargs)
+
+ def AppendColumn(self, title, width):
+  if self.use_dataview:
+   self.control.AppendTextColumn(title, width=width)
+  else:
+   index = self.control.GetColumnCount() + 1
+   self.control.InsertColumn(index, unicode(title), width=width)
+
+ def Clear(self):
+  self.control.DeleteAllItems()
+
+ def Delete(self, index):
+  self.control.DeleteItem(index)
+
+ def GetSelectedItems(self):
+  if self.use_dataview:
+   yield self.control.GetSelectedRow()
+  else:
+   yield self.control.GetFirstSelected()
+  for selection in xrange(1, self.control.GetSelectedItemCount()):
+   yield self.control.GetNextSelected(selection)
+
+ def GetSelectedIndex(self):
+  if self.use_dataview:
+   return self.control.GetSelectedRow()
+  else:
+   return self.control.GetFirstSelected()
+
+ def Unselect(self, index):
+  self.Select(index, False)
+
+ def SetFocus(self):
+  self.control.SetFocus()
+
+ def SetSelectedIndex(self, index):
+  if self.use_dataview:
+   self.control.SelectRow(index)
+  else:
+   self.control.Select(index)
+   self.control.Focus(index)
+
 class VirtualCtrl(wx.ListCtrl):
 
  def __init__(self, parent_obj, *args, **kwargs):
@@ -25,12 +109,7 @@ class SmartList(object):
 
  def __init__(self, parent=None, id=-1, *args, **kwargs):
   choices = kwargs.pop('choices', [])
-  self.use_dataview = False
-  if not self.use_dataview:
-   kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
-   self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
-  else:
-   self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
+  self.control = ListWrapper(parent=parent, id=id, *args, **kwargs)
   #somewhere to store our model objects
   self.models = []
   self.list_items = []
@@ -41,11 +120,8 @@ class SmartList(object):
 
  def set_columns(self, columns):
   self.columns = columns
-  for index, column in enumerate(columns):
-   if self.use_dataview:
-    self.control.AppendTextColumn(column.title, width=column.width)
-   else:
-    self.control.InsertColumn(index, unicode(column.title), width=column.width)
+  for column in columns:
+   self.control.AppendColumn(column.title, column.width)
 
  def get_columns_for(self, model):
   cols = []
@@ -59,10 +135,7 @@ class SmartList(object):
    self._rebuild_index_map()
   for item in items:
    columns = self.get_columns_for(item)
-   if self.use_dataview:
-    self.control.AppendItem(columns)
-   else:
-    self.control.Append(columns)
+   self.control.Append(columns)
    self.models.append(item)
    if isinstance(item, dict):
     item = frozendict(item)
@@ -88,7 +161,7 @@ class SmartList(object):
    self.index_map[model] = i
 
  def clear(self):
-  self.control.DeleteAllItems()
+  self.control.Clear()
   self.index_map = None
   del self.models[:]
 
@@ -103,18 +176,13 @@ class SmartList(object):
  @freeze_and_thaw
  def delete_items(self, items):
   for item in items:
-   self.control.DeleteItem(self.index_map[item])
+   self.control.Delete(self.index_map[item])
    self.models.remove(item)
   self.index_map = None
 
-
  def get_selected_items(self):
-  if self.use_dataview:
-   yield self.find_item_from_index(self.control.GetSelectedRow())
-  else:
-   yield self.find_item_from_index(self.control.GetFirstSelected())
-  for selection in xrange(1, self.control.GetSelectedItemCount()):
-   yield self.find_item_from_index(self.control.GetNextSelected(selection))
+  for item in self.control.GetSelectedItems():
+   yield self.find_item_from_index(item)
 
  def get_selected_item(self):
   try:
@@ -123,40 +191,25 @@ class SmartList(object):
    return
 
  def get_selected_index(self):
-  if self.use_dataview:
-   return self.control.GetSelectedRow()
-  else:
-   return self.control.GetFirstSelected()
+  return self.control.GetSelectedIndex()
 
  def select_model(self, item):
   index = self.find_index_of_item(item)
-  if self.use_dataview:
-   self.control.SelectRow(index)
-  else:
-   self.control.Select(index)
-   self.control.Focus(index)
+  self.control.SetSelectedIndex(index)
 
  def set_selected_index(self, index):
-  if self.use_dataview:
-   return self.control.SelectRow(index)
-  else:
-   return self.control.Select(index)
+  self.control.SetSelectedIndex(index)
 
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
-  if self.use_dataview:
-   self.control.InsertItem(index, columns)
-  else:
-   self.control.InsertStringItem(index, columns[0])
-   for i, col in enumerate(columns[1:]):
-    self.control.SetStringItem(index, i+1, col)
+  self.control.Insert(index, item)
   self.index_map = None
   self.models.insert(index, item)
 
  def update_item(self, item):
   index = self.find_index_of_item(item)
   for i, col in enumerate(self.get_columns_for(item)):
-   self.control.SetStringItem(index, i, col)
+   self.control.SetColumnText(index, i, col)
 
  def update_models(self, models):
   if self.index_map is None:
@@ -168,7 +221,6 @@ class SmartList(object):
     self.add_item(model)
 
 class VirtualSmartList(SmartList):
-
 
  def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
   if get_virtual_item is None:
@@ -201,7 +253,6 @@ class VirtualSmartList(SmartList):
   to_row = event.GetCacheTo()
   if self.caching_from <= from_row and self.caching_to >= to_row:
    return
-
   self.caching_from = from_row
   self.caching_to = to_row
   self.cache = self.update_cache(from_row, to_row)
