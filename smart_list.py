@@ -15,11 +15,11 @@ def freeze_and_thaw(func):
 class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
 
- def __init__(self, parent=None, id=None, *args, **kwargs):
+ def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
   self.use_dataview = False
   if not self.use_dataview:
    kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
-   self.control = VirtualCtrl(self, parent=parent, id=id, *args, **kwargs)
+   self.control = VirtualCtrl(parent_obj, parent=parent, id=id, *args, **kwargs)
   else:
    self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
 
@@ -96,6 +96,8 @@ class ListWrapper(object):
    self.control.Select(index)
    self.control.Focus(index)
 
+ def SetItemCount(self, count):
+  self.control.SetItemCount(count)
 class VirtualCtrl(wx.ListCtrl):
 
  def __init__(self, parent_obj, *args, **kwargs):
@@ -109,7 +111,7 @@ class SmartList(object):
 
  def __init__(self, parent=None, id=-1, *args, **kwargs):
   choices = kwargs.pop('choices', [])
-  self.control = ListWrapper(parent=parent, id=id, *args, **kwargs)
+  self.control = ListWrapper(parent_obj=self, parent=parent, id=id, *args, **kwargs)
   #somewhere to store our model objects
   self.models = []
   self.list_items = []

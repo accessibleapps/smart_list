@@ -12,7 +12,7 @@ for i in range(10):
  models.append(SampleModel(str(i), "desc for %d" % i))
 
 class MyFrame(wx.Frame):
- def get_item(self, row, col):
+ def get_item(self, row):
   return models[row]
 
  def update_cache(self, from_row, to_row):
@@ -21,7 +21,7 @@ class MyFrame(wx.Frame):
  def __init__(self, parent, title):
   super(MyFrame, self).__init__(parent, title=title, size=(500, 500))
   panel = wx.Panel(self, size=(500, 500))
-  self.lst = VirtualSmartList(parent=panel, style=wx.LC_REPORT, get_item=self.get_item, update_cache = self.update_cache)
+  self.lst = VirtualSmartList(parent=panel, style=wx.LC_REPORT, get_virtual_item=self.get_item, update_cache = self.update_cache)
   self.lst.set_columns([Column(title="title", model_field="title", width=100),
 Column(title="description", model_field="desc", width=200)])
   self.lst.update_count(len(models))
