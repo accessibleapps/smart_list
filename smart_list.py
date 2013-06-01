@@ -286,7 +286,10 @@ class Column(object):
   try:
    value = getattr(model, self.model_field)
   except AttributeError:
-   value = model[self.model_field]
+   try:
+    value = model[self.model_field]
+   except (KeyError, TypeError):
+    raise RuntimeError("Unable to find a %r attribute or key on model %r" % (self.model_field, model))
   if callable(value):
    value = value()
   return unicode(value)
