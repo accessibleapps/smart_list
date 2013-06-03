@@ -151,7 +151,7 @@ class SmartList(object):
   return self.index_map.get(model, None)
 
  def find_item_from_index(self, index):
-  if len(self.models)-1 <= index:
+  if len(self.models) <= index:
    return None
   return self.models[index]
 
