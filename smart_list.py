@@ -52,6 +52,8 @@ class ListWrapper(object):
  def Select(self, index, select=True):
   self.control.Select(index, select)
 
+ def Destroy(self):
+  return self.control.Destroy()
 
  def Bind(self, *args, **kwargs):
   return self.control.Bind(*args, **kwargs)
