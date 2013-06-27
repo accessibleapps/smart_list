@@ -2,6 +2,7 @@ import wx
 from wx import dataview
 from frozendict import frozendict
 
+import collections
 import functools
 
 def freeze_and_thaw(func):
@@ -144,7 +145,7 @@ class SmartList(object):
    columns = self.get_columns_for(item)
    self.control.Append(columns)
    self.models.append(item)
-   if isinstance(item, dict):
+   if isinstance(item, collections.MutableMapping):
     item = frozendict(item)
    self.index_map[item] = len(self.models)-1
 
