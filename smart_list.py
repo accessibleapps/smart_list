@@ -33,7 +33,7 @@ class ListWrapper(object):
  def GetItemCount(self):
   return self.control.GetItemCount()
 
- def Insert(self, index, item):
+ def Insert(self, index, item, columns):
   if self.use_dataview:
    self.control.InsertItem(index, columns)
   else:
@@ -210,7 +210,7 @@ class SmartList(object):
 
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
-  self.control.Insert(index, item)
+  self.control.Insert(index, item, columns)
   self.index_map = None
   self.models.insert(index, item)
 
