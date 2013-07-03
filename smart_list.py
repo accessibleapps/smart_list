@@ -34,7 +34,7 @@ class ListWrapper(object):
  def GetItemCount(self):
   return self.control.GetItemCount()
 
- def Insert(self, index, item):
+ def Insert(self, index, item, columns):
   if self.use_dataview:
    self.control.InsertItem(index, columns)
   else:
@@ -165,7 +165,7 @@ class SmartList(object):
  def _rebuild_index_map(self):
   self.index_map = {}
   for i, model in enumerate(self.models):
-   if isinstance(model, dict):
+   if isinstance(model, dict) or isinstance(model, collections.MutableMapping):
     model = frozendict(model)
    self.index_map[model] = i
 
@@ -184,9 +184,13 @@ class SmartList(object):
 
  @freeze_and_thaw
  def delete_items(self, items):
+  if self.index_map is None:
+   self._rebuild_index_map()
   for item in items:
-   self.control.Delete(self.index_map[item])
    self.models.remove(item)
+   if isinstance(item, collections.MutableMapping):
+    item = frozendict(item)
+   self.control.Delete(self.index_map[item])
   self.index_map = None
 
  def get_selected_items(self):
@@ -211,7 +215,7 @@ class SmartList(object):
 
  def insert_item(self, index, item):
   columns = self.get_columns_for(item)
-  self.control.Insert(index, item)
+  self.control.Insert(index, item, columns)
   self.index_map = None
   self.models.insert(index, item)
 
