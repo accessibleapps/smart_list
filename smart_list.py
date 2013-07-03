@@ -43,7 +43,10 @@ class ListWrapper(object):
     self.SetColumnText(index, i+1, col)
 
  def SetColumnText(self, index, column, text):
-  self.control.SetStringItem(index, column, text)
+  if self.use_dataview:
+   self.control.SetTextValue(text, index, column)
+  else:
+   self.control.SetStringItem(index, column, text)
 
  def Freeze(self):
   self.control.Freeze()
