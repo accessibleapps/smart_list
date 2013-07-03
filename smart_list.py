@@ -4,6 +4,7 @@ from frozendict import frozendict
 
 import collections
 import functools
+import platform
 
 def freeze_and_thaw(func):
  @functools.wraps(func)
@@ -17,7 +18,7 @@ class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
 
  def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
-  self.use_dataview = False
+  self.use_dataview = platform.system() == 'Darwin'
   if not self.use_dataview:
    kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
    self.control = VirtualCtrl(parent_obj, parent=parent, id=id, *args, **kwargs)
