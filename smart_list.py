@@ -32,6 +32,8 @@ class ListWrapper(object):
    self.control.Append(item)
 
  def GetItemCount(self):
+  if self.use_dataview:
+   return self.control.GetStore().GetCount()
   return self.control.GetItemCount()
 
  def Insert(self, index, item, columns):
