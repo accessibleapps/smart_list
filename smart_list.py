@@ -45,7 +45,10 @@ class ListWrapper(object):
     self.SetColumnText(index, i+1, col)
 
  def SetColumnText(self, index, column, text):
-  self.control.SetStringItem(index, column, text)
+  if self.use_dataview:
+   self.control.SetTextValue(text, index, column)
+  else:
+   self.control.SetStringItem(index, column, text)
 
  def Freeze(self):
   self.control.Freeze()
@@ -54,7 +57,12 @@ class ListWrapper(object):
   self.control.Thaw()
 
  def Select(self, index, select=True):
-  self.control.Select(index, select)
+  if self.use_dataview:
+   if index == -1:
+    return
+   self.control.SelectRow(index)
+  else:
+   self.control.Select(index, select)
 
  def Destroy(self):
   return self.control.Destroy()
@@ -67,7 +75,7 @@ class ListWrapper(object):
 
  def AppendColumn(self, title, width):
   if self.use_dataview:
-   self.control.AppendTextColumn(title, width=width)
+   self.control.AppendTextColumn(unicode(title), width=width)
   else:
    index = self.control.GetColumnCount() + 1
    self.control.InsertColumn(index, unicode(title), width=width)
