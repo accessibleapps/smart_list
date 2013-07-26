@@ -14,6 +14,22 @@ def freeze_and_thaw(func):
   self.control.Thaw()
  return closure
 
+def freeze_dict(d):
+ for k, v in d.iteritems():
+  if isinstance(v, collections.MutableMapping):
+   d[k] = freeze_dict(v)
+  if isinstance(v, collections.MutableSequence):
+   d[k] = freeze_list(v)
+ return frozendict(d)
+
+def freeze_list(l):
+ for n, i in enumerate(l):
+  if isinstance(i, collections.MutableSequence):
+   l[n] = freeze_list(i)
+  if isinstance(i, collections.MutableMapping):
+   l[n] = freeze_dict(i)
+ return tuple(l)
+
 class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
 
@@ -157,14 +173,14 @@ class SmartList(object):
    self.control.Append(columns)
    self.models.append(item)
    if isinstance(item, collections.MutableMapping):
-    item = frozendict(item)
-   self.index_map[item] = len(self.models)-1
+    item = freeze_dict(item)
+   self.index_map[item] = len(self.models) - 1
 
  def find_index_of_item(self, model):
   if self.index_map is None:
    self._rebuild_index_map()
   if isinstance(model, dict):
-   model = frozendict(model)
+   model = freeze_dict(model)
   return self.index_map.get(model, None)
 
  def find_item_from_index(self, index):
@@ -176,7 +192,7 @@ class SmartList(object):
   self.index_map = {}
   for i, model in enumerate(self.models):
    if isinstance(model, dict) or isinstance(model, collections.MutableMapping):
-    model = frozendict(model)
+    model = freeze_dict(model)
    self.index_map[model] = i
 
  def clear(self):
@@ -199,7 +215,7 @@ class SmartList(object):
   for item in items:
    self.models.remove(item)
    if isinstance(item, collections.MutableMapping):
-    item = frozendict(item)
+    item = freeze_dict(item)
    self.control.Delete(self.index_map[item])
   self.index_map = None
 
