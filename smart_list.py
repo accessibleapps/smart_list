@@ -261,6 +261,8 @@ class SmartList(object):
 
 class VirtualSmartList(SmartList):
 
+ allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper()) for key in "up down left right home end prior next space return".split()]
+
  def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
   if get_virtual_item is None:
    raise RuntimeError, 'get_virtual_item cannot be None'
@@ -274,6 +276,11 @@ class VirtualSmartList(SmartList):
   self.caching_to = 0
   self.update_cache = update_cache
   self.cache = []
+  self.control.Bind(wx.EVT_CHAR, self.on_list_key_down)
+
+ def on_list_key_down(self, evt):
+  if evt.KeyCode in self.allowed_navigation_keys:
+   evt.Skip()
 
  def OnGetItemText(self, item, col):
   if self.update_cache is not None and self.cache and self.caching_from <= item and self.caching_to >= item:
