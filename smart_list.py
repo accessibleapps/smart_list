@@ -219,9 +219,9 @@ class SmartList(object):
   if self.index_map is None:
    self._rebuild_index_map()
   for item in items:
-   self.models.remove(item)
    if isinstance(item, collections.MutableMapping):
     item = freeze_dict(item)
+   self.models.remove(item)
    self.control.Delete(self.index_map[item])
   self.index_map = None
 
@@ -251,10 +251,12 @@ class SmartList(object):
   self.index_map = None
   self.models.insert(index, item)
 
- def update_item(self, item):
-  index = self.find_index_of_item(item)
-  for i, col in enumerate(self.get_columns_for(item)):
-   self.control.SetColumnText(index, i, col)
+ def update_item(self, item, original=None):
+  if original is None:
+   original = item
+  index = self.find_index_of_item(original)
+  self.delete_item(original)
+  self.insert_item(index, item)
 
  def update_models(self, models):
   if self.index_map is None:
