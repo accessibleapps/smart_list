@@ -131,6 +131,8 @@ class ListWrapper(object):
 
  def SetItemCount(self, count):
   self.control.SetItemCount(count)
+
+
 class VirtualCtrl(wx.ListCtrl):
 
  def __init__(self, parent_obj, *args, **kwargs):
@@ -164,6 +166,9 @@ class SmartList(object):
    cols.append(c.get_model_value(model))
   return cols
 
+ def get_items(self):
+  return self.models
+
  @freeze_and_thaw
  def add_items(self, items):
   if self.index_map is None:
@@ -175,6 +180,7 @@ class SmartList(object):
    if isinstance(item, collections.MutableMapping):
     item = freeze_dict(item)
    self.index_map[item] = len(self.models) - 1
+
 
  def find_index_of_item(self, model):
   if self.index_map is None:
