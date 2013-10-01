@@ -5,6 +5,8 @@ from frozendict import frozendict
 import collections
 import functools
 import platform
+import logging
+logger = logging.getLogger(__name__)
 
 def freeze_and_thaw(func):
  @functools.wraps(func)
@@ -65,6 +67,12 @@ class ListWrapper(object):
    self.control.SetTextValue(text, index, column)
   else:
    self.control.SetStringItem(index, column, text)
+
+ def GetColumnText(self, index, column):
+  if self.use_dataview:
+   return self.control.GetTextValue(index, column)
+  else:
+   return self.control.GetItem(index, column).m_text
 
  def Freeze(self):
   self.control.Freeze()
@@ -255,8 +263,14 @@ class SmartList(object):
   if original is None:
    original = item
   index = self.find_index_of_item(original)
-  self.delete_item(original)
-  self.insert_item(index, item)
+  if index is None:
+   logger.warn("item %r not found" % item)
+  columns = self.get_columns_for(item)
+  for i, c in enumerate(columns):
+   #Updating column 0 causes the entire row to be read, so only do it if needed
+   if i == 0 and self.control.GetColumnText(index, i) == c:
+    continue
+   self.control.SetColumnText(index, i, c)
 
  def update_models(self, models):
   if self.index_map is None:
