@@ -293,6 +293,9 @@ class SmartList(object):
    else:
     self.add_item(model)
 
+ def SetMinSize(self, size):
+  self.control.control.SetMinSize(size)
+ 
 class VirtualSmartList(SmartList):
 
  allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper()) for key in "up down left right home end prior next space return".split()]
