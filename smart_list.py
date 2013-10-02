@@ -265,12 +265,24 @@ class SmartList(object):
   index = self.find_index_of_item(original)
   if index is None:
    logger.warn("item %r not found" % item)
+  item = self.freeze_item(item)
+  original = self.freeze_item(original)
   columns = self.get_columns_for(item)
   for i, c in enumerate(columns):
    #Updating column 0 causes the entire row to be read, so only do it if needed
    if i == 0 and self.control.GetColumnText(index, i) == c:
     continue
    self.control.SetColumnText(index, i, c)
+
+  self.models[index] = item
+  if self.index_map is not None:
+   del self.index_map[original]
+   self.index_map[item] = index
+
+ def freeze_item(self, item):
+  if isinstance(item, collections.MutableMapping):
+   item = freeze_dict(item)
+  return item
 
  def update_models(self, models):
   if self.index_map is None:
