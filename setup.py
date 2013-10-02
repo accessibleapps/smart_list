@@ -12,6 +12,7 @@ setup(
   'frozendict',
   #'wxpython',
  ],
+ zip_safe = False,
  classifiers = [
   'Development Status :: 3 - Alpha',
   'Intended Audience :: Developers',
