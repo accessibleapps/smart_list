@@ -91,8 +91,10 @@ class ListWrapper(object):
  def Destroy(self):
   return self.control.Destroy()
 
- def Bind(self, *args, **kwargs):
-  return self.control.Bind(*args, **kwargs)
+ def Bind(self, event, func):
+  if self.use_dataview and event == wx.EVT_CONTEXT_MENU:
+   event = dataview.EVT_DATAVIEW_ITEM_CONTEXT_MENU
+  return self.control.Bind(event, func)
 
  def SetLabel(self, *args, **kwargs):
   return self.control.SetLabel(*args, **kwargs)
