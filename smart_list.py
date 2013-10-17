@@ -195,7 +195,10 @@ class SmartList(object):
    self._rebuild_index_map()
   if isinstance(model, dict):
    model = freeze_dict(model)
-  return self.index_map.get(model, None)
+  index = self.index_map.get(model, None)
+  if index is None:
+   raise ValueError("Unable to find model %r to select" % item)
+  return index
 
  def find_item_from_index(self, index):
   if len(self.models) <= index:
