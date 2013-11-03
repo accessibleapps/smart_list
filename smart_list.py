@@ -197,9 +197,9 @@ class SmartList(object):
    self._rebuild_index_map()
   if isinstance(model, dict):
    model = freeze_dict(model)
-  index = self.index_map.get(model, None)
+  index = self.index_map.get(model)
   if index is None:
-   raise ValueError("Unable to find model %r to select" % item)
+   raise ValueError("Unable to find index of item %r " % item)
   return index
 
  def find_item_from_index(self, index):
@@ -253,6 +253,7 @@ class SmartList(object):
 
  def select_model(self, item):
   index = self.find_index_of_item(item)
+  print index
   self.control.SetSelectedIndex(index)
 
  def set_selected_index(self, index):
@@ -356,6 +357,7 @@ class VirtualSmartList(SmartList):
    model = self.get_virtual_item(i)
    if model == item:
     return i
+  raise ValueError("Unable to find index of item %r " % item)
 
 class Column(object):
 
