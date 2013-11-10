@@ -132,6 +132,9 @@ class ListWrapper(object):
  def SetFocus(self):
   self.control.SetFocus()
 
+ def HasFocus(self):
+  return self.control.HasFocus()
+
  def SetSelectedIndex(self, index):
   if self.use_dataview:
    self.control.SelectRow(index)
