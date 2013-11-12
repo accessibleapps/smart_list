@@ -137,7 +137,8 @@ class ListWrapper(object):
 
  def SetSelectedIndex(self, index):
   if self.use_dataview:
-   self.control.SelectRow(index)
+   if index <= self.GetItemCount()-1:
+    self.control.SelectRow(index)
   else:
    self.control.Select(index)
    self.control.Focus(index)
