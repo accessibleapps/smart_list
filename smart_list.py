@@ -257,7 +257,6 @@ class SmartList(object):
 
  def select_model(self, item):
   index = self.find_index_of_item(item)
-  print index
   self.control.SetSelectedIndex(index)
 
  def set_selected_index(self, index):
