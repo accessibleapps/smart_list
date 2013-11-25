@@ -381,6 +381,8 @@ class Column(object):
     value = model[self.model_field]
    except (KeyError, TypeError):
     raise RuntimeError("Unable to find a %r attribute or key on model %r" % (self.model_field, model))
+  if hasattr(value, '__unicode__'):
+   return unicode(value)
   if callable(value):
    value = value()
   return unicode(value)
