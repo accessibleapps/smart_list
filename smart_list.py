@@ -186,6 +186,8 @@ class ListWrapper(object):
   else:
    self.control.SetItemCount(count)
 
+ def RefreshItems(self, from_item, to_item):
+  self.control.RefreshItems(from_item, to_item)
 
 class VirtualCtrl(wx.ListCtrl):
 
