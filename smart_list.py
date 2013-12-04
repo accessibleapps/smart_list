@@ -32,16 +32,49 @@ def freeze_list(l):
    l[n] = freeze_dict(i)
  return tuple(l)
 
+class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
+ def __init__(self, parent_obj):
+  self.count = 0
+  super(VirtualDataViewModel, self).__init__(self.count)
+  self.parent = parent_obj
+  self.columns = []
+
+ def GetCount(self):
+  return self.count
+
+ def SetCount(self, count):
+  self.count = count
+  self.Reset(count)
+
+ def GetColumnCount(self):
+  return len(self.columns)
+
+ def GetColumnType(self, col):
+  return "string"
+
+ def GetValueByRow(self, row, col):
+  return self.parent.OnGetItemText(row, col)
+
 class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
 
  def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
   self.use_dataview = platform.system() == 'Darwin'
+  self.virtual = (kwargs.get("style", 0) & wx.LC_VIRTUAL)
   if not self.use_dataview:
    kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
    self.control = VirtualCtrl(parent_obj, parent=parent, id=id, *args, **kwargs)
   else:
-   self.control = dataview.DataViewListCtrl(parent=parent, id=id, style=wx.LC_REPORT)
+   kwargs = kwargs.copy()
+   if "style" in kwargs:
+    del kwargs["style"]
+   if self.virtual:
+    self.control = dataview.DataViewCtrl(parent=parent, id=id, *args, **kwargs)
+    self.wx_model = VirtualDataViewModel(parent_obj)
+    self.control.AssociateModel(self.wx_model)
+   else:
+    self.control = dataview.DataViewListCtrl(parent=parent, id=id, *args, **kwargs)
+    self.wx_model = self.control.GetStore()
 
  def Append(self, item):
   if self.use_dataview:
@@ -51,7 +84,7 @@ class ListWrapper(object):
 
  def GetItemCount(self):
   if self.use_dataview:
-   return self.control.GetStore().GetCount()
+   return self.wx_model.GetCount()
   return self.control.GetItemCount()
 
  def Insert(self, index, item, columns):
@@ -101,7 +134,11 @@ class ListWrapper(object):
 
  def AppendColumn(self, title, width):
   if self.use_dataview:
-   self.control.AppendTextColumn(unicode(title), width=width)
+   if self.virtual:
+    self.wx_model.columns.append(title)
+    self.control.AppendTextColumn(unicode(title), width=width, model_column=len(self.wx_model.columns) - 1)
+   else:
+    self.control.AppendTextColumn(unicode(title), width=width)
   else:
    index = self.control.GetColumnCount() + 1
    self.control.InsertColumn(index, unicode(title), width=width)
@@ -144,7 +181,10 @@ class ListWrapper(object):
    self.control.Focus(index)
 
  def SetItemCount(self, count):
-  self.control.SetItemCount(count)
+  if self.use_dataview:
+   self.wx_model.SetCount(count)
+  else:
+   self.control.SetItemCount(count)
 
 
 class VirtualCtrl(wx.ListCtrl):
@@ -153,8 +193,8 @@ class VirtualCtrl(wx.ListCtrl):
   super(VirtualCtrl, self).__init__(*args, **kwargs)
   self.parent = parent_obj
 
- def OnGetItemText(self, col, idx):
-  return self.parent.OnGetItemText(col, idx)
+ def OnGetItemText(self, idx, col):
+  return self.parent.OnGetItemText(idx, col)
 
 class SmartList(object):
 
