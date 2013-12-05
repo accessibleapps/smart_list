@@ -154,7 +154,7 @@ class ListWrapper(object):
 
  def GetSelectedItems(self):
   if self.use_dataview:
-   yield self.control.GetSelectedRow()
+   yield self.wx_model.GetRow(self.control.GetSelection())
   else:
    yield self.control.GetFirstSelected()
   for selection in xrange(1, self.control.GetSelectedItemCount()):
@@ -162,7 +162,7 @@ class ListWrapper(object):
 
  def GetSelectedIndex(self):
   if self.use_dataview:
-   return self.control.GetSelectedRow()
+   return self.wx_model.GetRow(self.control.GetSelection())
   else:
    return self.control.GetFirstSelected()
 
