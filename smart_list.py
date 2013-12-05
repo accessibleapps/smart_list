@@ -53,7 +53,10 @@ class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
   return "string"
 
  def GetValueByRow(self, row, col):
-  return self.parent.OnGetItemText(row, col)
+  res = self.parent.OnGetItemText(row, col)
+  if res is None:
+   res = ''
+  return res
 
 class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
