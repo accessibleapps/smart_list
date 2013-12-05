@@ -416,7 +416,7 @@ class Column(object):
 
  def get_model_value(self, model):
   if self.model_field is None:
-   return
+   return ''
   if callable(self.model_field):
    return unicode(self.model_field(model))
   try:
