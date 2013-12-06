@@ -53,7 +53,12 @@ class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
   return "string"
 
  def GetValueByRow(self, row, col):
-  res = self.parent.OnGetItemText(row, col)
+  res = ''
+  try:
+   res = self.parent.OnGetItemText(row, col)
+  except Exception as e:
+   logger.exception("Error retrieving row %r col %r" % (row, col))
+   raise
   if res is None:
    res = ''
   return res
