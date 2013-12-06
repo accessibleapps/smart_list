@@ -125,7 +125,7 @@ class ListWrapper(object):
   if self.use_dataview:
    if index == -1:
     return
-   self.control.SelectRow(index)
+   self.control.Select(self.wx_model.GetItem(index))
   else:
    self.control.Select(index, select)
 
