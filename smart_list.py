@@ -428,7 +428,7 @@ class Column(object):
    return unicode(self.model_field(model))
   try:
    value = getattr(model, self.model_field)
-  except AttributeError:
+  except (AttributeError, TypeError):
    try:
     value = model[self.model_field]
    except (KeyError, TypeError):
