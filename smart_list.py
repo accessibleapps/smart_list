@@ -356,7 +356,10 @@ class SmartList(object):
 
  def SetMinSize(self, size):
   self.control.control.SetMinSize(size)
- 
+
+ def Hide(self):
+  return self.control.control.Hide()
+
 class VirtualSmartList(SmartList):
 
  allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper()) for key in "up down left right home end pageup pagedown space return".split()]
