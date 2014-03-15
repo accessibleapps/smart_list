@@ -197,6 +197,9 @@ class ListWrapper(object):
  def RefreshItems(self, from_item, to_item):
   self.control.RefreshItems(from_item, to_item)
 
+ def SetLabel(self, label):
+  self.control.SetLabel(label)
+
 class VirtualCtrl(wx.ListCtrl):
 
  def __init__(self, parent_obj, *args, **kwargs):
