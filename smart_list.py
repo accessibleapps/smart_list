@@ -363,6 +363,9 @@ class SmartList(object):
  def Hide(self):
   return self.control.control.Hide()
 
+ def SetLabel(self, label):
+  self.control.SetLabel(label)
+
 class VirtualSmartList(SmartList):
 
  allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper()) for key in "up down left right home end pageup pagedown space return".split()]
