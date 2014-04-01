@@ -423,6 +423,12 @@ class VirtualSmartList(SmartList):
     return i
   raise ValueError("Unable to find index of item %r " % item)
 
+ def Freeze(self):
+  self.control.Freeze()
+
+ def Thaw(self):
+  self.control.Thaw()
+
 class Column(object):
 
  def __init__(self, title=None, width=-1, model_field=None):
