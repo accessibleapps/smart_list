@@ -8,6 +8,9 @@ setup(
  version = __version__,
  description = __doc__,
  py_modules = ["smart_list"],
+ data_files = [
+ ('', ['iat_hook.dll']),
+ ],
  install_requires = [
   'frozendict',
   #'wxpython',

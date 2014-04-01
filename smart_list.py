@@ -7,6 +7,33 @@ import functools
 import platform
 import logging
 logger = logging.getLogger(__name__)
+#Patch windows 8's broken UIA implementation
+import resource_finder
+import commctrl
+from ctypes import *
+from ctypes.wintypes import *
+import platform
+
+callback_type = WINFUNCTYPE(c_int, c_int, c_int, c_int, c_int)
+@callback_type
+def callback(hwnd, msg, wParam, lParam):
+ if msg == commctrl.LVM_GETITEMCOUNT:
+  return 0
+ return old_proc(hwnd, msg, wParam, lParam)
+
+def install_iat_hook():
+ global old_proc
+ iat_hook = cdll[resource_finder.find_application_resource('iat_hook.dll')]
+ uiacore = windll.kernel32.LoadLibraryA("uiautomationcore.dll")
+ if uiacore != 0:
+  old_proc = callback_type()
+  iat_hook.PatchIat(uiacore, "user32.dll", "SendMessageW", callback, pointer(old_proc))
+
+if platform.system() == 'Windows' and platform.release() == '8':
+ try:
+  install_iat_hook()
+ except:
+  logger.exception("Unable to install IAT hook")
 
 def freeze_and_thaw(func):
  @functools.wraps(func)
@@ -453,3 +480,8 @@ class Column(object):
   if callable(value):
    value = value()
   return unicode(value)
+
+def find_datafiles():
+ import sys
+ path = os.path.split(os.path.abspath(sys.modules[find_datafiles.__module__].__file__))[0]
+ return [('', [os.path.join(path, 'iat_hook.dll')])]
