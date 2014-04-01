@@ -1,3 +1,4 @@
+import os
 import wx
 from wx import dataview
 from frozendict import frozendict
