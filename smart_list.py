@@ -194,6 +194,9 @@ class ListWrapper(object):
 
  def GetSelectedIndex(self):
   if self.use_dataview:
+   selection = self.control.GetSelection()
+   if not selection.IsOk():
+    return -1
    return self.wx_model.GetRow(self.control.GetSelection())
   else:
    return self.control.GetFirstSelected()
