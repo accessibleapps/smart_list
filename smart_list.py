@@ -10,17 +10,16 @@ import logging
 logger = logging.getLogger(__name__)
 #Patch windows 8's broken UIA implementation
 import resource_finder
-import commctrl
-from ctypes import *
-from ctypes.wintypes import *
-import platform
-
-callback_type = WINFUNCTYPE(c_int, c_int, c_int, c_int, c_int)
-@callback_type
-def callback(hwnd, msg, wParam, lParam):
- if msg == commctrl.LVM_GETITEMCOUNT:
-  return 0
- return old_proc(hwnd, msg, wParam, lParam)
+if platform.system() == 'Windows':
+ import commctrl
+ from ctypes import *
+ from ctypes.wintypes import *
+ callback_type = WINFUNCTYPE(c_int, c_int, c_int, c_int, c_int)
+ @callback_type
+ def callback(hwnd, msg, wParam, lParam):
+  if msg == commctrl.LVM_GETITEMCOUNT:
+   return 0
+  return old_proc(hwnd, msg, wParam, lParam)
 
 def install_iat_hook():
  global old_proc
