@@ -160,8 +160,11 @@ class ListWrapper(object):
   return self.control.Destroy()
 
  def Bind(self, event, func):
-  if self.use_dataview and event == wx.EVT_CONTEXT_MENU:
-   event = dataview.EVT_DATAVIEW_ITEM_CONTEXT_MENU
+  if self.use_dataview:
+   if event == wx.EVT_CONTEXT_MENU:
+    event = dataview.EVT_DATAVIEW_ITEM_CONTEXT_MENU
+   elif event == wx.EVT_ITEM_ACTIVATED:
+    event = wx.EVT_MENU_OPEN
   return self.control.Bind(event, func)
 
  def SetLabel(self, *args, **kwargs):
