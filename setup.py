@@ -1,16 +1,16 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-__version__ = "0.1"
+__version__ = "0.2"
 __doc__ = """Smart list view"""
 
 setup(
  name = "smart_list",
  version = __version__,
  description = __doc__,
- py_modules = ["smart_list"],
- data_files = [
- ('', ['iat_hook.dll']),
- ],
+ packages=find_packages(),
+ package_data = {
+  'smart_list': ['iat_hook.dll'],
+ },
  install_requires = [
   'frozendict',
   #'wxpython',
