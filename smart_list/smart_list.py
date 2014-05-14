@@ -289,7 +289,7 @@ class SmartList(object):
    model = freeze_dict(model)
   index = self.index_map.get(model)
   if index is None:
-   raise ValueError("Unable to find index of item %r " % item)
+   raise ValueError("Unable to find index of item %r " % model)
   return index
 
  def find_item_from_index(self, index):
