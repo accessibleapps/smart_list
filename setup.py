@@ -13,6 +13,7 @@ setup(
  },
  install_requires = [
   'frozendict',
+  'resource_finder',
   #'wxpython',
  ],
  zip_safe = False,
