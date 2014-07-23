@@ -472,7 +472,7 @@ class Column(object):
  def get_model_value(self, model):
   if self.model_field is None:
    return ''
-  if callable(self.model_field):
+  if is_callable(self.model_field):
    return unicode(self.model_field(model))
   try:
    value = getattr(model, self.model_field)
@@ -483,7 +483,7 @@ class Column(object):
     raise RuntimeError("Unable to find a %r attribute or key on model %r" % (self.model_field, model))
   if hasattr(value, '__unicode__'):
    return unicode(value)
-  if callable(value):
+  if is_callable(value):
    value = value()
   return unicode(value)
 
@@ -493,3 +493,6 @@ def find_datafiles():
  import sys
  path = os.path.split(os.path.abspath(sys.modules[find_datafiles.__module__].__file__))[0]
  return [('', [os.path.join(path, 'iat_hook.dll')])]
+
+def is_callable(obj):
+ return isinstance(obj, (collections.Callable, classmethod, staticmethod))
