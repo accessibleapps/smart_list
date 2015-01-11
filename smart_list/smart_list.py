@@ -140,7 +140,7 @@ class ListWrapper(object):
   if self.use_dataview:
    return self.control.GetTextValue(index, column)
   else:
-   return self.control.GetItem(index, column).m_text
+   return self.control.GetItem(index, column).GetText()
 
  def Freeze(self):
   self.control.Freeze()
