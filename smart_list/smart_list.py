@@ -405,7 +405,7 @@ class VirtualSmartList(SmartList):
 
  def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
   if get_virtual_item is None:
-   raise RuntimeError, 'get_virtual_item cannot be None'
+   raise RuntimeError('get_virtual_item cannot be None')
 
   kwargs['style'] = kwargs.get('style', 0)|wx.LC_VIRTUAL
   super(VirtualSmartList, self).__init__(*args, **kwargs)
