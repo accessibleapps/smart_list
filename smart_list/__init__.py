@@ -1,3 +1,3 @@
 from __future__ import absolute_import
-from .smart_list import SmartList, VirtualSmartList, Column
+from .smart_list import SmartList, VirtualSmartList, Column, find_datafiles
 
