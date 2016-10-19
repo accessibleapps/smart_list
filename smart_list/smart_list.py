@@ -487,12 +487,5 @@ class Column(object):
    value = value()
   return unicode(value)
 
-def find_datafiles():
- if platform.system() != 'Windows':
-  return []
- import sys
- path = os.path.split(os.path.abspath(sys.modules[find_datafiles.__module__].__file__))[0]
- return [('', [os.path.join(path, 'iat_hook.dll')])]
-
 def is_callable(obj):
  return isinstance(obj, (collections.Callable, classmethod, staticmethod))
