@@ -1,16 +1,23 @@
 import os
 import wx
-from wx import dataview
+
+try:
+ from wx import dataview
+except ImportError:
+ dataview = None
+
 from frozendict import frozendict
 
 import collections
 import functools
 import platform
+is_mac = platform.system() == 'Darwin'
+is_windows = platform.system() == 'Windows'
 import logging
 logger = logging.getLogger(__name__)
 #Patch windows 8's broken UIA implementation
 import resource_finder
-if platform.system() == 'Windows':
+if is_windows:
  import commctrl
  from ctypes import *
  from ctypes.wintypes import *
@@ -29,7 +36,7 @@ def install_iat_hook():
   old_proc = callback_type()
   iat_hook.PatchIat(uiacore, "user32.dll", "SendMessageW", callback, pointer(old_proc))
 
-if platform.system() == 'Windows' and platform.release() == '8':
+if is_windows and platform.release() == '8':
  try:
   install_iat_hook()
  except:
@@ -59,42 +66,45 @@ def freeze_list(l):
    l[n] = freeze_dict(i)
  return tuple(l)
 
-class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
- def __init__(self, parent_obj):
-  self.count = 0
-  super(VirtualDataViewModel, self).__init__(self.count)
-  self.parent = parent_obj
-  self.columns = []
+if dataview is not None:
+ class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
+  def __init__(self, parent_obj):
+   self.count = 0
+   super(VirtualDataViewModel, self).__init__(self.count)
+   self.parent = parent_obj
+   self.columns = []
 
- def GetCount(self):
-  return self.count
+  def GetCount(self):
+   return self.count
 
- def SetCount(self, count):
-  self.count = count
-  self.Reset(count)
+  def SetCount(self, count):
+   self.count = count
+   self.Reset(count)
 
- def GetColumnCount(self):
-  return len(self.columns)
+  def GetColumnCount(self):
+   return len(self.columns)
 
- def GetColumnType(self, col):
-  return "string"
+  def GetColumnType(self, col):
+   return "string"
 
- def GetValueByRow(self, row, col):
-  res = ''
-  try:
-   res = self.parent.OnGetItemText(row, col)
-  except Exception as e:
-   logger.exception("Error retrieving row %r col %r" % (row, col))
-   raise
-  if res is None:
+  def GetValueByRow(self, row, col):
    res = ''
-  return res
+   try:
+    res = self.parent.OnGetItemText(row, col)
+   except Exception as e:
+    logger.exception("Error retrieving row %r col %r" % (row, col))
+    raise
+   if res is None:
+    res = ''
+   return res
 
 class ListWrapper(object):
  """Provides a standard abstraction over a ListView and DataView"""
 
  def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
-  self.use_dataview = platform.system() == 'Darwin'
+  self.use_dataview = is_mac
+  if self.use_dataview and dataview is None:
+   raise RuntimeError("wx.dataview required and not available")
   self.virtual = (kwargs.get("style", 0) & wx.LC_VIRTUAL)
   if not self.use_dataview:
    kwargs['style'] = kwargs.get('style', 0)|wx.LC_REPORT
