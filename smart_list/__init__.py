@@ -3,6 +3,7 @@ from .smart_list import SmartList, VirtualSmartList, Column
 
 
 def find_datafiles():
+ import os
  import platform
  if platform.system() != 'Windows':
   return []
