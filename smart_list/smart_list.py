@@ -2,6 +2,11 @@ import os
 import wx
 
 try:
+	unicode
+except NameError:
+	unicode = str
+
+try:
  from wx import dataview
 except ImportError:
  dataview = None
