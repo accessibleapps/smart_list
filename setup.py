@@ -14,6 +14,7 @@ setup(
  install_requires = [
   'frozendict',
   'resource_finder',
+  'pypiwin32',
   #'wxpython',
  ],
  zip_safe = False,
