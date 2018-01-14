@@ -349,7 +349,7 @@ class SmartList(object):
 
  def get_selected_item(self):
   try:
-   return self.get_selected_items().next()
+   return next(self.get_selected_items())
   except StopIteration:
    return
 
