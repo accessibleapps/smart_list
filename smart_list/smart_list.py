@@ -26,12 +26,21 @@ if is_windows:
  import commctrl
  from ctypes import *
  from ctypes.wintypes import *
+
+ SendMessageW = windll.user32.SendMessageW
+
  callback_type = WINFUNCTYPE(c_int, c_int, c_int, c_int, c_int)
  @callback_type
- def callback(hwnd, msg, wParam, lParam):
+ def callback_8(hwnd, msg, wParam, lParam):
   if msg == commctrl.LVM_GETITEMCOUNT:
    return 0
   return old_proc(hwnd, msg, wParam, lParam)
+
+ @callback_type
+ def callback_10(hwnd, msg, wParam, lParam):
+  if msg == commctrl.LVM_GETITEMCOUNT:
+   return 0
+  return SendMessageW(hwnd, msg, wParam, lParam)
 
 def install_iat_hook():
  global old_proc
@@ -39,9 +48,12 @@ def install_iat_hook():
  uiacore = windll.kernel32.LoadLibraryA("uiautomationcore.dll")
  if uiacore != 0:
   old_proc = callback_type()
-  iat_hook.PatchIat(uiacore, "user32.dll", "SendMessageW", callback, pointer(old_proc))
+  if platform.release() == '8':
+   iat_hook.PatchIat(uiacore, "user32.dll", "SendMessageW", callback_8, pointer(old_proc))
+  else:
+   iat_hook.PatchDelayedIat(uiacore, "ext-ms-win-rtcore-ntuser-window-ext-l1-1-0.dll", "SendMessageW", callback_10, pointer(old_proc))
 
-if is_windows and platform.release() == '8':
+if is_windows and platform.release() in {'8', '10'}:
  try:
   install_iat_hook()
  except:
