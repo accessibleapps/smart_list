@@ -11,7 +11,7 @@ install_requires = [
   #'wxpython',
  ]
 if is_windows:
-	install_requires.append('pypiwin32')
+	install_requires.append('pywin32')
 
 setup(
  name = "smart_list",
