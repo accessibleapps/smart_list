@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import wx
 
@@ -20,7 +21,7 @@ is_mac = platform.system() == 'Darwin'
 is_windows = platform.system() == 'Windows'
 import logging
 logger = logging.getLogger(__name__)
-import iat_patch
+from . import iat_patch
 
 if is_windows and platform.release() in {'8', '10'}:
  try:

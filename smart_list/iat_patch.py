@@ -27,7 +27,9 @@ if is_windows:
 
 def install_iat_hook():
  global old_proc
- iat_hook = cdll[resource_finder.find_application_resource('iat_hook.dll')]
+ arch = platform.architecture()[0][:2]
+ iat_hook_path = resource_finder.find_application_resource('iat_hook{arch}.dll'.format(arch=arch))
+ iat_hook = cdll[iat_hook_path]
  uiacore = windll.kernel32.LoadLibraryA("uiautomationcore.dll")
  if uiacore != 0:
   old_proc = callback_type()
