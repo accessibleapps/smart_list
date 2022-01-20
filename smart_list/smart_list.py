@@ -38,7 +38,7 @@ def freeze_and_thaw(func):
  return closure
 
 def freeze_dict(d):
- for k, v in d.iteritems():
+ for k, v in d.items():
   if isinstance(v, collections.MutableMapping):
    d[k] = freeze_dict(v)
   if isinstance(v, collections.MutableSequence):
