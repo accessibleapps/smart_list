@@ -19,7 +19,7 @@ setup(
  description = __doc__,
  packages=find_packages(),
  package_data = {
-  'smart_list': ['iat_hook.dll', 'iat_hook64.dll'],
+  'smart_list': ['iat_hook32.dll', 'iat_hook64.dll'],
  },
  install_requires = install_requires,
 
