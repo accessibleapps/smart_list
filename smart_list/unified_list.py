@@ -39,6 +39,8 @@ class UnifiedList(object):
             kwargs = kwargs.copy()
             if "style" in kwargs:
                 del kwargs["style"]
+            if "name" in kwargs:
+                del kwargs["name"]
             if self.virtual:
                 self.control = dataview.DataViewCtrl(
                     parent=parent, id=id, *args, **kwargs)

@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 import platform
-__version__ = "1.2.2"
+__version__ = "1.2.3"
+
 is_windows = platform.system() == 'Windows'
 
 __doc__ = """Smart list view"""
