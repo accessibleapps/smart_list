@@ -1,7 +1,9 @@
 import platform
+from logging import getLogger
 
 import wx
 
+logger = getLogger('smart_list.unified_list')
 try:
     unicode
 except NameError:
@@ -133,7 +135,7 @@ class UnifiedList(object):
             yield self.wx_model.GetRow(self.control.GetSelection())
         else:
             yield self.control.GetFirstSelected()
-        for selection in xrange(1, self.control.GetSelectedItemCount()):
+        for selection in range(1, self.control.GetSelectedItemCount()):
             yield self.control.GetNextSelected(selection)
 
     def GetSelectedIndex(self):
