@@ -138,7 +138,7 @@ class SmartList(object):
         if self.index_map is None:
             self._rebuild_index_map()
         for item in items:
-            if isinstance(item, collections.MutableMapping):
+            if isinstance(item, MutableMapping):
                 item = freeze_dict(item)
             self.models.remove(item)
             self.control.Delete(self.index_map[item])
@@ -193,7 +193,7 @@ class SmartList(object):
             self.index_map[item] = index
 
     def freeze_item(self, item):
-        if isinstance(item, collections.MutableMapping):
+        if isinstance(item, MutableMapping):
             item = freeze_dict(item)
         return item
 
