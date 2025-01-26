@@ -219,7 +219,7 @@ class SmartList(object):
 class VirtualSmartList(SmartList):
 
     allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper(
-    )) for key in "up down left right home end pageup pagedown space return".split()]
+    )) for key in "up down left right home end pageup pagedown space return f4".split()]
 
     def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
         if get_virtual_item is None:
