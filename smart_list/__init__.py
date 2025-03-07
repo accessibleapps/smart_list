@@ -10,4 +10,4 @@ def find_datafiles():
  import sys
  import smart_list
  path = os.path.join(smart_list.__path__[0])
- return [('', [os.path.join(path, 'iat_hook.dll')])]
+ return [('', [os.path.join(path, 'iat_hook32.dll'), os.path.join(path, 'iat_hook64.dll')])]
