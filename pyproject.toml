@@ -28,6 +28,7 @@ dependencies = [
     "frozendict",
     "resource_finder @ git+https://github.com/accessibleapps/resource_finder.git",
     "pywin32; sys_platform == 'win32'",
+    "wxpython>=4.2.2",
 ]
 
 [tool.hatch.metadata]

@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 
 import logging
-import os
-from .unified_list import UnifiedList
 
 import wx
 
 from . import iat_patch
+from .unified_list import UnifiedList
 
 try:
     unicode
@@ -16,16 +15,19 @@ except NameError:
 try:
     from collections.abc import Callable, MutableMapping, MutableSequence
 except ImportError:
-    from collections import Callable,   MutableMapping, MutableSequence
+    from collections import Callable, MutableMapping, MutableSequence
 import functools
 import platform
 
 from frozendict import frozendict
 
-is_windows = platform.system() == 'Windows'
+is_windows = platform.system() == "Windows"
 logger = logging.getLogger(__name__)
 
-if is_windows and platform.release() in {'8', '10'}:
+if is_windows and platform.release() in {
+    "8",
+    "10",
+}:
     try:
         iat_patch.install_iat_hook()
     except:
@@ -38,6 +40,7 @@ def freeze_and_thaw(func):
         self.control.Freeze()
         func(self, *args, **kwargs)
         self.control.Thaw()
+
     return closure
 
 
@@ -60,11 +63,11 @@ def freeze_list(l):
 
 
 class SmartList(object):
-
     def __init__(self, parent=None, id=-1, *args, **kwargs):
-        choices = kwargs.pop('choices', [])
+        choices = kwargs.pop("choices", [])
         self.control = UnifiedList(
-            parent_obj=self, parent=parent, id=id, *args, **kwargs)
+            parent_obj=self, parent=parent, id=id, *args, **kwargs
+        )
         # somewhere to store our model objects
         self.models = []
         self.list_items = []
@@ -215,17 +218,21 @@ class SmartList(object):
     def SetLabel(self, label):
         self.control.SetLabel(label)
 
+    def CanAcceptFocus(self):
+        return self.control.CanAcceptFocus()
+
 
 class VirtualSmartList(SmartList):
-
-    allowed_navigation_keys = [getattr(wx, 'WXK_%s' % key.upper(
-    )) for key in "up down left right home end pageup pagedown space return f4".split()]
+    allowed_navigation_keys = [
+        getattr(wx, "WXK_%s" % key.upper())
+        for key in "up down left right home end pageup pagedown space return f4".split()
+    ]
 
     def __init__(self, get_virtual_item=None, update_cache=None, *args, **kwargs):
         if get_virtual_item is None:
-            raise RuntimeError('get_virtual_item cannot be None')
+            raise RuntimeError("get_virtual_item cannot be None")
 
-        kwargs['style'] = kwargs.get('style', 0) | wx.LC_VIRTUAL
+        kwargs["style"] = kwargs.get("style", 0) | wx.LC_VIRTUAL
         super(VirtualSmartList, self).__init__(*args, **kwargs)
         self.get_virtual_item = get_virtual_item
         if update_cache is not None:
@@ -241,8 +248,13 @@ class VirtualSmartList(SmartList):
             evt.Skip()
 
     def OnGetItemText(self, item, col):
-        if self.update_cache is not None and self.cache and self.caching_from <= item and self.caching_to >= item:
-            wanted = item-self.caching_from
+        if (
+            self.update_cache is not None
+            and self.cache
+            and self.caching_from <= item
+            and self.caching_to >= item
+        ):
+            wanted = item - self.caching_from
             # print "from %d to %d wanted %d len %d" % (self.caching_from, self.caching_to, wanted, len(self.cache))
             model = self.cache[wanted]
         else:
@@ -262,7 +274,7 @@ class VirtualSmartList(SmartList):
         self.cache = self.update_cache(from_row, to_row)
 
     def refresh(self):
-        self.control.RefreshItems(0, self.control.GetItemCount()-1)
+        self.control.RefreshItems(0, self.control.GetItemCount() - 1)
         self.cache = []
         self.caching_from = 0
         self.caching_to = 0
@@ -282,7 +294,6 @@ class VirtualSmartList(SmartList):
 
 
 class Column(object):
-
     def __init__(self, title=None, width=-1, model_field=None):
         self.title = title
         self.model_field = model_field
@@ -290,7 +301,7 @@ class Column(object):
 
     def get_model_value(self, model):
         if self.model_field is None:
-            return ''
+            return ""
         if is_callable(self.model_field):
             return unicode(self.model_field(model))
         try:
@@ -300,8 +311,10 @@ class Column(object):
                 value = model[self.model_field]
             except (KeyError, TypeError):
                 raise RuntimeError(
-                    "Unable to find a %r attribute or key on model %r" % (self.model_field, model))
-        if hasattr(value, '__unicode__'):
+                    "Unable to find a %r attribute or key on model %r"
+                    % (self.model_field, model)
+                )
+        if hasattr(value, "__unicode__"):
             return unicode(value)
         if is_callable(value):
             value = value()
