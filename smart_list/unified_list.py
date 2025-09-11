@@ -3,7 +3,7 @@ from logging import getLogger
 
 import wx
 
-logger = getLogger('smart_list.unified_list')
+logger = getLogger("smart_list.unified_list")
 try:
     unicode
 except NameError:
@@ -16,7 +16,7 @@ except ImportError:
     dataview = None
 
 
-is_mac = platform.system() == 'Darwin'
+is_mac = platform.system() == "Darwin"
 
 """ Unified List
 """
@@ -26,17 +26,18 @@ class UnifiedList(object):
     """Provides a standard abstraction over a ListView and DataView
 
     Since a WX ListView is not accesible on Mac and a DataView is, this class does its best to provide the same interface for both
-     """
+    """
 
     def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
         self.use_dataview = is_mac
         if self.use_dataview and dataview is None:
             raise RuntimeError("wx.dataview required and not available")
-        self.virtual = (kwargs.get("style", 0) & wx.LC_VIRTUAL)
+        self.virtual = kwargs.get("style", 0) & wx.LC_VIRTUAL
         if not self.use_dataview:
-            kwargs['style'] = kwargs.get('style', 0) | wx.LC_REPORT
+            kwargs["style"] = kwargs.get("style", 0) | wx.LC_REPORT
             self.control = VirtualCtrl(
-                parent_obj=parent_obj, parent=parent, id=id, *args, **kwargs)
+                parent_obj=parent_obj, parent=parent, id=id, *args, **kwargs
+            )
         else:
             kwargs = kwargs.copy()
             if "style" in kwargs:
@@ -45,12 +46,14 @@ class UnifiedList(object):
                 del kwargs["name"]
             if self.virtual:
                 self.control = dataview.DataViewCtrl(
-                    parent=parent, id=id, *args, **kwargs)
+                    parent=parent, id=id, *args, **kwargs
+                )
                 self.wx_model = VirtualDataViewModel(parent_obj)
                 self.control.AssociateModel(self.wx_model)
             else:
                 self.control = dataview.DataViewListCtrl(
-                    parent=parent, id=id, *args, **kwargs)
+                    parent=parent, id=id, *args, **kwargs
+                )
                 self.wx_model = self.control.GetStore()
 
     def Append(self, item):
@@ -70,7 +73,7 @@ class UnifiedList(object):
         else:
             self.control.InsertStringItem(index, columns[0])
             for i, col in enumerate(columns[1:]):
-                self.SetColumnText(index, i+1, col)
+                self.SetColumnText(index, i + 1, col)
 
     def SetColumnText(self, index, column, text):
         if self.use_dataview:
@@ -89,6 +92,9 @@ class UnifiedList(object):
 
     def Thaw(self):
         self.control.Thaw()
+
+    def CanAcceptFocus(self):
+        return self.control.CanAcceptFocus()
 
     def Select(self, index, select=True):
         if self.use_dataview:
@@ -117,7 +123,10 @@ class UnifiedList(object):
             if self.virtual:
                 self.wx_model.columns.append(title)
                 self.control.AppendTextColumn(
-                    unicode(title), width=width, model_column=len(self.wx_model.columns) - 1)
+                    unicode(title),
+                    width=width,
+                    model_column=len(self.wx_model.columns) - 1,
+                )
             else:
                 self.control.AppendTextColumn(unicode(title), width=width)
         else:
@@ -158,7 +167,7 @@ class UnifiedList(object):
 
     def SetSelectedIndex(self, index):
         if self.use_dataview:
-            if index <= self.GetItemCount()-1:
+            if index <= self.GetItemCount() - 1:
                 self.control.SelectRow(index)
         else:
             self.control.Select(index)
@@ -175,6 +184,7 @@ class UnifiedList(object):
 
 
 if dataview is not None:
+
     class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
         def __init__(self, parent_obj):
             self.count = 0
@@ -196,19 +206,18 @@ if dataview is not None:
             return "string"
 
         def GetValueByRow(self, row, col):
-            res = ''
+            res = ""
             try:
                 res = self.parent.OnGetItemText(row, col)
             except Exception as e:
                 logger.exception("Error retrieving row %r col %r" % (row, col))
                 raise
             if res is None:
-                res = ''
+                res = ""
             return res
 
 
 class VirtualCtrl(wx.ListCtrl):
-
     def __init__(self, parent_obj=None, *args, **kwargs):
         super(VirtualCtrl, self).__init__(*args, **kwargs)
         self.parent = parent_obj
