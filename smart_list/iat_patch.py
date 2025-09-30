@@ -1,6 +1,13 @@
-# Patch windows 8's broken UIA implementation
-# This hook disables the query which will attempt to enumerate all items in a list, which breaks with virtual listview implementations
+"""Windows 8/10 UI Automation performance fix.
 
+Windows 8/10 UIA implementation has a bug where it enumerates all items
+in a virtual list by calling LVM_GETITEMCOUNT repeatedly. For large virtual
+lists (e.g., 1 million items), this causes unacceptable delays.
+
+This module uses IAT (Import Address Table) hooking to intercept SendMessageW
+calls within uiautomationcore.dll and return 0 for LVM_GETITEMCOUNT queries,
+preventing the enumeration without breaking accessibility.
+"""
 import platform
 
 import resource_finder
@@ -30,6 +37,14 @@ if is_windows:
 
 
 def install_iat_hook():
+    """Install IAT hook to fix Windows 8/10 virtual list performance.
+
+    Patches SendMessageW in uiautomationcore.dll to intercept and suppress
+    LVM_GETITEMCOUNT queries that would enumerate all virtual list items.
+
+    Uses architecture-specific DLL (iat_hook32.dll or iat_hook64.dll).
+    Windows 8 and 10+ require different hooking strategies.
+    """
     global old_proc
     arch = platform.architecture()[0][:2]
     iat_hook_path = resource_finder.find_application_resource(

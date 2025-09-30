@@ -1,3 +1,10 @@
+"""Model-based list controls for wxPython with virtual scrolling support.
+
+Provides SmartList and VirtualSmartList for displaying collections with
+configurable columns. Automatically handles platform differences (ListView
+on Windows/Linux, DataView on macOS) and includes Windows performance
+optimizations for virtual lists.
+"""
 from __future__ import absolute_import
 
 import logging
@@ -35,6 +42,12 @@ if is_windows and platform.release() in {
 
 
 def freeze_and_thaw(func):
+    """Decorator that suspends UI updates during bulk operations.
+
+    Calls Freeze() before executing the function and Thaw() after.
+    Prevents flickering and improves performance when modifying
+    multiple items.
+    """
     @functools.wraps(func)
     def closure(self, *args, **kwargs):
         self.control.Freeze()
@@ -45,6 +58,10 @@ def freeze_and_thaw(func):
 
 
 def freeze_dict(d):
+    """Convert mutable dict to immutable frozendict recursively.
+
+    Allows using dicts as index map keys for O(1) lookups.
+    """
     for k, v in d.items():
         if isinstance(v, MutableMapping):
             d[k] = freeze_dict(v)
@@ -54,6 +71,7 @@ def freeze_dict(d):
 
 
 def freeze_list(l):
+    """Convert mutable list to immutable tuple recursively."""
     for n, i in enumerate(l):
         if isinstance(i, MutableSequence):
             l[n] = freeze_list(i)
@@ -63,6 +81,23 @@ def freeze_list(l):
 
 
 class SmartList(object):
+    """Model-based list control for displaying object collections.
+
+    Displays arbitrary objects using configurable columns that can reference
+    attributes, dict keys, or callables. Maintains O(1) item lookup via index
+    map. Uses freeze/thaw for performant bulk operations.
+
+    Args:
+        parent: Parent wx widget
+        id: Widget ID (default -1)
+        choices: Initial items to populate (optional)
+        **kwargs: Additional wx.ListCtrl arguments
+
+    Example:
+        lst = SmartList(parent=panel, style=wx.LC_REPORT)
+        lst.set_columns([Column("Name", "name"), Column("Age", "age")])
+        lst.add_items([Person("Alice", 30), Person("Bob", 25)])
+    """
     def __init__(self, parent=None, id=-1, *args, **kwargs):
         choices = kwargs.pop("choices", [])
         self.control = UnifiedList(
@@ -76,6 +111,11 @@ class SmartList(object):
         self.add_items(choices)
 
     def set_columns(self, columns):
+        """Configure column definitions for the list.
+
+        Args:
+            columns: List of Column objects defining display fields
+        """
         self.columns = columns
         for column in columns:
             self.control.AppendColumn(column.title, column.width)
@@ -91,6 +131,11 @@ class SmartList(object):
 
     @freeze_and_thaw
     def add_items(self, items):
+        """Add multiple items to the list.
+
+        Args:
+            items: Iterable of model objects to display
+        """
         if self.index_map is None:
             self._rebuild_index_map()
         for item in items:
@@ -102,6 +147,17 @@ class SmartList(object):
             self.index_map[item] = len(self.models) - 1
 
     def find_index_of_item(self, model):
+        """Get list index for a model object.
+
+        Args:
+            model: Object to find
+
+        Returns:
+            Integer index
+
+        Raises:
+            ValueError: If model not found
+        """
         if self.index_map is None:
             self._rebuild_index_map()
         if isinstance(model, dict):
@@ -223,6 +279,34 @@ class SmartList(object):
 
 
 class VirtualSmartList(SmartList):
+    """Virtual list for efficiently displaying large datasets.
+
+    Displays items on-demand without loading entire dataset into memory.
+    Requires callback to retrieve items by index. Optional cache callback
+    for batch loading optimization.
+
+    Args:
+        get_virtual_item: Callable accepting index, returning model object
+        update_cache: Optional callable(from_row, to_row) returning list
+                      of models for caching
+        parent: Parent wx widget
+        **kwargs: Additional wx.ListCtrl arguments (wx.LC_VIRTUAL added automatically)
+
+    Example:
+        def get_item(i):
+            return database.fetch_row(i)
+
+        def load_cache(start, end):
+            return database.fetch_rows(start, end)
+
+        lst = VirtualSmartList(
+            parent=panel,
+            get_virtual_item=get_item,
+            update_cache=load_cache
+        )
+        lst.set_columns([Column("ID", "id")])
+        lst.update_count(1000000)
+    """
     allowed_navigation_keys = [
         getattr(wx, "WXK_%s" % key.upper())
         for key in "up down left right home end pageup pagedown space return f4".split()
@@ -262,6 +346,11 @@ class VirtualSmartList(SmartList):
         return self.columns[col].get_model_value(model)
 
     def update_count(self, count):
+        """Set total number of virtual items.
+
+        Args:
+            count: Total items available
+        """
         self.control.SetItemCount(count)
 
     def handle_cache(self, event):
@@ -274,6 +363,7 @@ class VirtualSmartList(SmartList):
         self.cache = self.update_cache(from_row, to_row)
 
     def refresh(self):
+        """Refresh all displayed items and clear cache."""
         self.control.RefreshItems(0, self.control.GetItemCount() - 1)
         self.cache = []
         self.caching_from = 0
@@ -294,12 +384,38 @@ class VirtualSmartList(SmartList):
 
 
 class Column(object):
+    """Column definition for SmartList display.
+
+    Defines how to extract and display a value from model objects.
+    Supports three field resolution strategies:
+    - Attribute access: model_field="name" -> obj.name
+    - Dict key access: model_field="name" -> obj["name"]
+    - Callable: model_field=lambda x: x.first + x.last
+
+    Args:
+        title: Column header text
+        width: Column width in pixels (-1 for auto)
+        model_field: Field name or callable for extracting values
+    """
     def __init__(self, title=None, width=-1, model_field=None):
         self.title = title
         self.model_field = model_field
         self.width = width
 
     def get_model_value(self, model):
+        """Extract display value from model object.
+
+        Tries in order: callable, attribute, dict key.
+
+        Args:
+            model: Object to extract value from
+
+        Returns:
+            String representation of value
+
+        Raises:
+            RuntimeError: If field not found via any strategy
+        """
         if self.model_field is None:
             return ""
         if is_callable(self.model_field):

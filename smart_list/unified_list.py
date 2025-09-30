@@ -18,14 +18,16 @@ except ImportError:
 
 is_mac = platform.system() == "Darwin"
 
-""" Unified List
-"""
-
 
 class UnifiedList(object):
-    """Provides a standard abstraction over a ListView and DataView
+    """Cross-platform abstraction over wx.ListView and wx.DataView.
 
-    Since a WX ListView is not accesible on Mac and a DataView is, this class does its best to provide the same interface for both
+    Automatically selects appropriate control based on platform:
+    - macOS: Uses DataView for accessibility support
+    - Windows/Linux: Uses ListView for performance
+
+    Provides consistent API regardless of underlying implementation.
+    Handles both regular and virtual list modes transparently.
     """
 
     def __init__(self, parent=None, id=None, parent_obj=None, *args, **kwargs):
@@ -186,6 +188,10 @@ class UnifiedList(object):
 if dataview is not None:
 
     class VirtualDataViewModel(dataview.PyDataViewVirtualListModel):
+        """DataView model for virtual lists on macOS.
+
+        Delegates value retrieval to parent SmartList's OnGetItemText.
+        """
         def __init__(self, parent_obj):
             self.count = 0
             super(VirtualDataViewModel, self).__init__(self.count)
@@ -218,6 +224,7 @@ if dataview is not None:
 
 
 class VirtualCtrl(wx.ListCtrl):
+    """ListView subclass that delegates virtual item requests to parent."""
     def __init__(self, parent_obj=None, *args, **kwargs):
         super(VirtualCtrl, self).__init__(*args, **kwargs)
         self.parent = parent_obj
